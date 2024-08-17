@@ -15,6 +15,10 @@ class TelemetryProcessor:
         self._strategies: List[TelemetryStrategy] = []
         self._run_thread = False
 
+    @property
+    def strategies(self):
+        return self._strategies
+
     def add_strategy(self, strategy: TelemetryStrategy):
         self._strategies.append(strategy)
 
@@ -55,13 +59,18 @@ class TelemetryProcessor:
     def start_processor_thread(self, telemetry_collection):
         if self._run_thread:
             return
+        self._run_thread = True
 
         self._telemetry_collection = telemetry_collection
-        self._run_thread = True
+        self._telemetry_collection.start_telemetries()
 
         self._processor_loop_thread = threading.Thread(target=self._processor_loop_thread_function)
         self._processor_loop_thread.start()
 
     def stop_processor_thread(self):
+        if not self._run_thread:
+            return
         self._run_thread = False
+
+        self._telemetry_collection.destroy_telemetries()
         self._processor_loop_thread.join()

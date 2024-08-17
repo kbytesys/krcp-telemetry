@@ -104,5 +104,4 @@ def init_streams_from_telemetry_processor(processor: TelemetryProcessor, factory
         result.register_telemetry(
             factory.create(telemetry_type)
         )
-    result.start_telemetries()
     return result

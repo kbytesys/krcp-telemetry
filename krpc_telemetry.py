@@ -1,5 +1,4 @@
 import pandas as pd
-from dash import Dash, html, dcc, Output, Input
 
 from krpc_telemetry.dashboard import init_dashboard
 from krpc_telemetry.krpc_streams import KrpcTelemetryStreamFactory, init_streams_from_telemetry_processor

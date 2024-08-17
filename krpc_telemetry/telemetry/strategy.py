@@ -8,11 +8,12 @@ from krpc_telemetry.telemetry import TelemetryType
 
 
 class TelemetryStrategy(ABC):
-    def __init__(self, name: str, collect_every_secs: int = 1):
+    def __init__(self, name: str, title: str, collect_every_secs: int = 1):
         self._collect_every_secs = collect_every_secs
         self._lastMet = -1
         self._dataframe = pd.DataFrame()
         self.name = name
+        self.title = title
 
     def collect_data(self, met: int, data: Dict[TelemetryType, Any]) -> None:
         if self._lastMet != -1 and self._collect_every_secs + self._lastMet > met:
@@ -39,7 +40,7 @@ class TelemetryStrategy(ABC):
 
 class OrbitalVelocityStrategy(TelemetryStrategy, ABC):
     def __init__(self, collect_every_secs: int = 1):
-        super().__init__("orbital_velocity", collect_every_secs)
+        super().__init__("orbital_velocity", "Orbital Velocity", collect_every_secs)
 
     def _create_dataframe(self) -> DataFrame:
         result =  pd.DataFrame(columns=[TelemetryType.MET, TelemetryType.ORBITAL_SPEED])
