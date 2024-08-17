@@ -8,10 +8,11 @@ from krpc_telemetry.telemetry import TelemetryType
 
 
 class TelemetryStrategy(ABC):
-    def __init__(self, collect_every_secs: int = 1):
+    def __init__(self, name: str, collect_every_secs: int = 1):
         self._collect_every_secs = collect_every_secs
         self._lastMet = -1
         self._dataframe = pd.DataFrame()
+        self.name = name
 
     def collect_data(self, met: int, data: Dict[TelemetryType, Any]) -> None:
         if self._lastMet != -1 and self._collect_every_secs + self._lastMet > met:
@@ -19,6 +20,10 @@ class TelemetryStrategy(ABC):
 
         self._lastMet = met
         self._collect_data(met, data)
+
+    @property
+    def dataframe(self) -> DataFrame:
+        return self._dataframe
 
     @abstractmethod
     def _collect_data(self, met: int, data: Dict[TelemetryType, Any]):
@@ -33,10 +38,8 @@ class TelemetryStrategy(ABC):
         pass
 
 class OrbitalVelocityStrategy(TelemetryStrategy, ABC):
-    def __init__(self):
-        super().__init__(collect_every_secs=5)
-
-        self.fig = None
+    def __init__(self, collect_every_secs: int = 1):
+        super().__init__("orbital_velocity", collect_every_secs)
 
     def _create_dataframe(self) -> DataFrame:
         result =  pd.DataFrame(columns=[TelemetryType.MET, TelemetryType.ORBITAL_SPEED])
@@ -48,7 +51,6 @@ class OrbitalVelocityStrategy(TelemetryStrategy, ABC):
         return {TelemetryType.MET, TelemetryType.ORBITAL_SPEED}
 
     def _collect_data(self, met: int, data: Dict[TelemetryType, Any]):
-        print("%s %s" % (TelemetryType.ORBITAL_SPEED, data[TelemetryType.ORBITAL_SPEED]))
         collected_data_dataframe = pd.DataFrame({
             TelemetryType.MET: met,
             TelemetryType.ORBITAL_SPEED: data[TelemetryType.ORBITAL_SPEED]
@@ -59,9 +61,3 @@ class OrbitalVelocityStrategy(TelemetryStrategy, ABC):
                 self._dataframe,
                 collected_data_dataframe
             ]) if len(self._dataframe) else collected_data_dataframe
-
-        if len(self._dataframe) == 1:
-            self.fig, ax = self._dataframe.plot()
-            self.fig.show()
-
-        self.fig.batch_update()
