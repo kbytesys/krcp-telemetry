@@ -1,3 +1,3 @@
-.inline-component {
-    display: inline-block;
+.js-plotly-plot .plotly .modebar-btn svg {
+    display: inline;
 }

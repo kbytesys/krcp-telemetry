@@ -50,11 +50,20 @@ class TelemetryProcessor:
 
         return None
 
+    def get_telemetry_plot(self, name: str):
+        for strategy in self._strategies:
+            if strategy.name == name:
+                return strategy.get_telemetry_plot()
+
+        return None
+
     def _processor_loop_thread_function(self):
         while self._run_thread:
             sleep(1)
             collected_data = self._telemetry_collection.collect_data()
             self.process_telemetry_data(collected_data)
+
+        print("Processor thread stopped")
 
     def start_processor_thread(self, telemetry_collection):
         if self._run_thread:
@@ -71,6 +80,6 @@ class TelemetryProcessor:
         if not self._run_thread:
             return
         self._run_thread = False
-
-        self._telemetry_collection.destroy_telemetries()
         self._processor_loop_thread.join()
+        self._telemetry_collection.destroy_telemetries()
+

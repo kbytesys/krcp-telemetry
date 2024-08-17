@@ -1,12 +1,10 @@
 import pandas as pd
+import krpc
 
 from krpc_telemetry.dashboard import init_dashboard
 from krpc_telemetry.krpc_streams import KrpcTelemetryStreamFactory, init_streams_from_telemetry_processor
-
-import krpc
-
 from krpc_telemetry.telemetry.processor import TelemetryProcessor
-from krpc_telemetry.telemetry.strategy import OrbitalVelocityStrategy
+from krpc_telemetry.telemetry.strategy import OrbitalVelocityStrategy, SurfaceVelocityStrategy
 
 pd.options.plotting.backend = "plotly"
 
@@ -22,8 +20,11 @@ if __name__ == '__main__':
     krpc_telemetry_factory = KrpcTelemetryStreamFactory(vessel, conn)
     telemetry_processor = TelemetryProcessor()
     telemetry_processor.add_strategy(OrbitalVelocityStrategy())
+    telemetry_processor.add_strategy(SurfaceVelocityStrategy())
     telemetry_collection = init_streams_from_telemetry_processor(telemetry_processor, krpc_telemetry_factory)
     telemetry_processor.start_processor_thread(telemetry_collection)
-    init_dashboard(telemetry_processor).run(debug=True)
-    telemetry_processor.stop_processor_thread()
-    print("exiting")
+    try:
+        init_dashboard(telemetry_processor).run(debug=True)
+    finally:
+        telemetry_processor.stop_processor_thread()
+        print("exiting")

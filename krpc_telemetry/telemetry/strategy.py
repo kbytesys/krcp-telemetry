@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Set
+from typing import Dict, Any, Set, cast
 
 import pandas as pd
 from pandas.core.interchange.dataframe_protocol import DataFrame
+from plotly.graph_objs import Figure, Scatter
 
 from krpc_telemetry.telemetry import TelemetryType
 
@@ -27,7 +28,7 @@ class TelemetryStrategy(ABC):
         return self._dataframe
 
     @abstractmethod
-    def _collect_data(self, met: int, data: Dict[TelemetryType, Any]):
+    def _collect_data(self, met: int, data: Dict[TelemetryType, Any]) -> None:
         pass
 
     @abstractmethod
@@ -35,18 +36,13 @@ class TelemetryStrategy(ABC):
         pass
 
     @abstractmethod
-    def _create_dataframe(self) -> DataFrame:
+    def get_telemetry_plot(self) -> Figure:
         pass
+
 
 class OrbitalVelocityStrategy(TelemetryStrategy, ABC):
     def __init__(self, collect_every_secs: int = 1):
         super().__init__("orbital_velocity", "Orbital Velocity", collect_every_secs)
-
-    def _create_dataframe(self) -> DataFrame:
-        result =  pd.DataFrame(columns=[TelemetryType.MET, TelemetryType.ORBITAL_SPEED])
-        result.set_index(TelemetryType.MET, inplace=True)
-        return result
-
 
     def get_telemetry_types(self) -> Set[TelemetryType]:
         return {TelemetryType.MET, TelemetryType.ORBITAL_SPEED}
@@ -62,3 +58,35 @@ class OrbitalVelocityStrategy(TelemetryStrategy, ABC):
                 self._dataframe,
                 collected_data_dataframe
             ]) if len(self._dataframe) else collected_data_dataframe
+
+    def get_telemetry_plot(self):
+        plot: Figure =  self._dataframe.plot()
+        scatter_0: Scatter = cast(Scatter, plot.data[0])
+        scatter_0.line.shape = "spline"
+        return plot
+
+
+class SurfaceVelocityStrategy(TelemetryStrategy, ABC):
+    def __init__(self, collect_every_secs: int = 1):
+        super().__init__("surface_velocity", "Surface Velocity", collect_every_secs)
+
+    def get_telemetry_types(self) -> Set[TelemetryType]:
+        return {TelemetryType.MET, TelemetryType.SURFACE_SPEED}
+
+    def _collect_data(self, met: int, data: Dict[TelemetryType, Any]):
+        collected_data_dataframe = pd.DataFrame({
+            TelemetryType.MET: met,
+            TelemetryType.SURFACE_SPEED: data[TelemetryType.SURFACE_SPEED]
+        }, index=[0])
+        collected_data_dataframe.set_index(TelemetryType.MET, inplace=True)
+        self._dataframe = pd.concat(
+            [
+                self._dataframe,
+                collected_data_dataframe
+            ]) if len(self._dataframe) else collected_data_dataframe
+
+    def get_telemetry_plot(self) -> Figure:
+        plot: Figure =  self._dataframe.plot()
+        scatter_0: Scatter = cast(Scatter, plot.data[0])
+        scatter_0.line.shape = "spline"
+        return plot
