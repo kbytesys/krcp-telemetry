@@ -8,6 +8,7 @@ from krpc_telemetry.telemetry.strategy import OrbitalVelocityStrategy, SurfaceVe
 
 pd.options.plotting.backend = "plotly"
 
+
 if __name__ == '__main__':
     conn = krpc.connect(name='KRPC-Telemetry', address='172.24.240.1')
 
@@ -24,7 +25,7 @@ if __name__ == '__main__':
     telemetry_collection = init_streams_from_telemetry_processor(telemetry_processor, krpc_telemetry_factory)
     telemetry_processor.start_processor_thread(telemetry_collection)
     try:
-        init_dashboard(telemetry_processor).run(debug=True)
+        init_dashboard(telemetry_processor).run(debug=True, use_reloader=False)
     finally:
         telemetry_processor.stop_processor_thread()
         print("exiting")
