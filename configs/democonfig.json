@@ -5,6 +5,9 @@
     },
     {
       "name": "surface_velocity"
+    },
+    {
+      "name": "orbit_apo_peri"
     }
   ]
 }

@@ -12,7 +12,7 @@ from krpc_telemetry.telemetry.processor import TelemetryProcessor
 
 class KrpcTelemetryStream:
     def __init__(self, telemetry_type: TelemetryType, stream: Stream, rate: float,
-                 transform_function: Callable[[Any], Any]) -> None:
+                 transform_function: Callable[[Any], Any] = None) -> None:
         self._telemetry_type = telemetry_type
         self._stream = stream
         self._transform_function = transform_function
@@ -96,6 +96,22 @@ class KrpcTelemetryStreamFactory:
                 self._conn.add_stream(getattr, flight, 'speed'),
                 self._default_rate,
                 lambda value: round(value, 1)
+            )
+
+        if telemetry_type == TelemetryType.ORBITAL_APOAPSIS:
+            return KrpcTelemetryStream(
+                telemetry_type,
+                self._conn.add_stream(getattr, self._vessel.orbit, 'apoapsis_altitude'),
+                self._default_rate,
+                lambda value: round(value/1000, 0)
+            )
+
+        if telemetry_type == TelemetryType.ORBITAL_PERIAPSIS:
+            return KrpcTelemetryStream(
+                telemetry_type,
+                self._conn.add_stream(getattr, self._vessel.orbit, 'periapsis_altitude'),
+                self._default_rate,
+                lambda value: round(value/1000, 0)
             )
 
         raise ValueError("Telemetry %s unknown" % telemetry_type)
