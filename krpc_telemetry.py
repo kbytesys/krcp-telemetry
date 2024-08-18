@@ -8,7 +8,6 @@ from krpc_telemetry.telemetry.strategy import OrbitalVelocityStrategy, SurfaceVe
 
 pd.options.plotting.backend = "plotly"
 
-
 if __name__ == '__main__':
     conn = krpc.connect(name='KRPC-Telemetry', address='172.24.240.1')
 

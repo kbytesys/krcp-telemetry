@@ -37,8 +37,10 @@ def init_dashboard(telemetry_processor: TelemetryProcessor) -> Dash:
     def serve_layout():
         return html.Div([
             html.H1('KRPC Telemetry', className="inline-block text-2xl"),
-            html.Button(id='start-stop-button', children='Pause', className="inline-block font-bold ml-4 py-2 px-4 rounded bg-blue-500 text-white"),
-            html.Button(id='shutdown-button', children='Shutdown', className="inline-block font-bold ml-4 py-2 px-4 rounded bg-blue-500 text-white"),
+            html.Button(id='start-stop-button', children='Pause',
+                        className="inline-block font-bold ml-4 py-2 px-4 rounded bg-blue-500 text-white"),
+            html.Button(id='shutdown-button', children='Shutdown',
+                        className="inline-block font-bold ml-4 py-2 px-4 rounded bg-blue-500 text-white"),
             html.Div(
                 graph_layout, className="mt-4 flex flex-wrap"
             ),

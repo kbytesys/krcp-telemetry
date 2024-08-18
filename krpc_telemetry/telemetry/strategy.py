@@ -15,6 +15,7 @@ class TelemetryStrategy(ABC):
         self._dataframe = pd.DataFrame()
         self.name = name
         self.title = title
+        self.plot: Figure | None = None
 
     def collect_data(self, met: int, data: Dict[TelemetryType, Any]) -> None:
         if self._lastMet != -1 and self._collect_every_secs + self._lastMet > met:
@@ -40,17 +41,18 @@ class TelemetryStrategy(ABC):
         pass
 
 
-class OrbitalVelocityStrategy(TelemetryStrategy, ABC):
-    def __init__(self, collect_every_secs: int = 1):
-        super().__init__("orbital_velocity", "Orbital Velocity", collect_every_secs)
+class SingleValueTelemetryStrategy(TelemetryStrategy, ABC):
+    def __init__(self, name: str, title: str, telemetry_type: TelemetryType, collect_every_secs: int = 1):
+        super().__init__(name, title, collect_every_secs)
+        self._telemetry_type = telemetry_type
 
     def get_telemetry_types(self) -> Set[TelemetryType]:
-        return {TelemetryType.MET, TelemetryType.ORBITAL_SPEED}
+        return {TelemetryType.MET, self._telemetry_type}
 
     def _collect_data(self, met: int, data: Dict[TelemetryType, Any]):
         collected_data_dataframe = pd.DataFrame({
             TelemetryType.MET: met,
-            TelemetryType.ORBITAL_SPEED: data[TelemetryType.ORBITAL_SPEED]
+            self._telemetry_type: data[self._telemetry_type]
         }, index=[0])
         collected_data_dataframe.set_index(TelemetryType.MET, inplace=True)
         self._dataframe = pd.concat(
@@ -60,33 +62,17 @@ class OrbitalVelocityStrategy(TelemetryStrategy, ABC):
             ]) if len(self._dataframe) else collected_data_dataframe
 
     def get_telemetry_plot(self):
-        plot: Figure =  self._dataframe.plot()
+        plot: Figure = self._dataframe.plot()
         scatter_0: Scatter = cast(Scatter, plot.data[0])
         scatter_0.line.shape = "spline"
         return plot
 
 
-class SurfaceVelocityStrategy(TelemetryStrategy, ABC):
+class OrbitalVelocityStrategy(SingleValueTelemetryStrategy, ABC):
     def __init__(self, collect_every_secs: int = 1):
-        super().__init__("surface_velocity", "Surface Velocity", collect_every_secs)
+        super().__init__("orbital_velocity", "Orbital Velocity", TelemetryType.ORBITAL_SPEED, collect_every_secs)
 
-    def get_telemetry_types(self) -> Set[TelemetryType]:
-        return {TelemetryType.MET, TelemetryType.SURFACE_SPEED}
 
-    def _collect_data(self, met: int, data: Dict[TelemetryType, Any]):
-        collected_data_dataframe = pd.DataFrame({
-            TelemetryType.MET: met,
-            TelemetryType.SURFACE_SPEED: data[TelemetryType.SURFACE_SPEED]
-        }, index=[0])
-        collected_data_dataframe.set_index(TelemetryType.MET, inplace=True)
-        self._dataframe = pd.concat(
-            [
-                self._dataframe,
-                collected_data_dataframe
-            ]) if len(self._dataframe) else collected_data_dataframe
-
-    def get_telemetry_plot(self) -> Figure:
-        plot: Figure =  self._dataframe.plot()
-        scatter_0: Scatter = cast(Scatter, plot.data[0])
-        scatter_0.line.shape = "spline"
-        return plot
+class SurfaceVelocityStrategy(SingleValueTelemetryStrategy, ABC):
+    def __init__(self, collect_every_secs: int = 1):
+        super().__init__("surface_velocity", "Surface Velocity", TelemetryType.SURFACE_SPEED, collect_every_secs)

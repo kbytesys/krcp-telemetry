@@ -82,4 +82,3 @@ class TelemetryProcessor:
         self._run_thread = False
         self._processor_loop_thread.join()
         self._telemetry_collection.destroy_telemetries()
-

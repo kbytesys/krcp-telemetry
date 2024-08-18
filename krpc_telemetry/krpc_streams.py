@@ -11,7 +11,8 @@ from krpc_telemetry.telemetry.processor import TelemetryProcessor
 
 
 class KrpcTelemetryStream:
-    def __init__(self, telemetry_type: TelemetryType, stream: Stream, rate: float, transform_function: Callable[[Any], Any]) -> None:
+    def __init__(self, telemetry_type: TelemetryType, stream: Stream, rate: float,
+                 transform_function: Callable[[Any], Any]) -> None:
         self._telemetry_type = telemetry_type
         self._stream = stream
         self._transform_function = transform_function
@@ -33,6 +34,7 @@ class KrpcTelemetryStream:
 
     def destroy(self) -> None:
         self._stream.remove()
+
 
 class KrpcTelemetryStreamCollection:
     def __init__(self):
@@ -76,7 +78,7 @@ class KrpcTelemetryStreamFactory:
                 telemetry_type,
                 self._conn.add_stream(getattr, self._vessel, 'met'),
                 self._default_rate,
-                lambda value : math.floor(value)
+                lambda value: math.floor(value)
             )
 
         if telemetry_type == TelemetryType.ORBITAL_SPEED:
@@ -84,7 +86,7 @@ class KrpcTelemetryStreamFactory:
                 telemetry_type,
                 self._conn.add_stream(getattr, self._vessel.orbit, 'speed'),
                 self._default_rate,
-                lambda value : round(value,1)
+                lambda value: round(value, 1)
             )
 
         if telemetry_type == TelemetryType.SURFACE_SPEED:
@@ -93,12 +95,14 @@ class KrpcTelemetryStreamFactory:
                 telemetry_type,
                 self._conn.add_stream(getattr, flight, 'speed'),
                 self._default_rate,
-                lambda value : round(value,1)
+                lambda value: round(value, 1)
             )
 
         raise ValueError("Telemetry %s unknown" % telemetry_type)
 
-def init_streams_from_telemetry_processor(processor: TelemetryProcessor, factory: KrpcTelemetryStreamFactory) -> KrpcTelemetryStreamCollection:
+
+def init_streams_from_telemetry_processor(processor: TelemetryProcessor,
+                                          factory: KrpcTelemetryStreamFactory) -> KrpcTelemetryStreamCollection:
     result = KrpcTelemetryStreamCollection()
     for telemetry_type in processor.get_telemetry_types():
         result.register_telemetry(
