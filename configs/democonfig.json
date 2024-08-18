@@ -1,0 +1,10 @@
+{
+  "telemetry": [
+    {
+      "name": "orbital_velocity"
+    },
+    {
+      "name": "surface_velocity"
+    }
+  ]
+}
