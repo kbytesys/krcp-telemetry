@@ -8,6 +8,12 @@
     },
     {
       "name": "orbit_apo_peri"
+    },
+    {
+      "name": "gforce"
+    },
+    {
+      "name": "atm_pressure"
     }
   ]
 }

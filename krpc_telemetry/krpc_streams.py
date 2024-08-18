@@ -72,7 +72,12 @@ class KrpcTelemetryStreamFactory:
         self._conn = conn
         self._default_rate = default_rate
 
+        self._orbit_reference_fight = None
+
     def create(self, telemetry_type: TelemetryType) -> KrpcTelemetryStream:
+        if not self._orbit_reference_fight:
+            self._orbit_reference_fight = self._vessel.flight(self._vessel.orbit.body.reference_frame)
+
         if telemetry_type == TelemetryType.MET:
             return KrpcTelemetryStream(
                 telemetry_type,
@@ -90,10 +95,25 @@ class KrpcTelemetryStreamFactory:
             )
 
         if telemetry_type == TelemetryType.SURFACE_SPEED:
-            flight = self._vessel.flight(self._vessel.orbit.body.reference_frame)
             return KrpcTelemetryStream(
                 telemetry_type,
-                self._conn.add_stream(getattr, flight, 'speed'),
+                self._conn.add_stream(getattr, self._orbit_reference_fight, 'speed'),
+                self._default_rate,
+                lambda value: round(value, 1)
+            )
+
+        if telemetry_type == TelemetryType.SURFACE_HORIZONTAL_SPEED:
+            return KrpcTelemetryStream(
+                telemetry_type,
+                self._conn.add_stream(getattr, self._orbit_reference_fight, 'horizontal_speed'),
+                self._default_rate,
+                lambda value: round(value, 1)
+            )
+
+        if telemetry_type == TelemetryType.SURFACE_VERTICAL_SPEED:
+            return KrpcTelemetryStream(
+                telemetry_type,
+                self._conn.add_stream(getattr, self._orbit_reference_fight, 'vertical_speed'),
                 self._default_rate,
                 lambda value: round(value, 1)
             )
@@ -112,6 +132,49 @@ class KrpcTelemetryStreamFactory:
                 self._conn.add_stream(getattr, self._vessel.orbit, 'periapsis_altitude'),
                 self._default_rate,
                 lambda value: round(value/1000, 0)
+            )
+
+        if telemetry_type == TelemetryType.G_FORCE:
+            return KrpcTelemetryStream(
+                telemetry_type,
+                self._conn.add_stream(getattr, self._orbit_reference_fight, 'g_force'),
+                self._default_rate,
+                lambda value: round(value, 1)
+            )
+
+        if telemetry_type == TelemetryType.CENTER_OF_MASS:
+            return KrpcTelemetryStream(
+                telemetry_type,
+                self._conn.add_stream(getattr, self._orbit_reference_fight, 'center_of_mass'),
+                self._default_rate
+            )
+
+        if telemetry_type == TelemetryType.ATMOSPHERE_DENSITY:
+            return KrpcTelemetryStream(
+                telemetry_type,
+                self._conn.add_stream(getattr, self._orbit_reference_fight, 'atmosphere_density'),
+                self._default_rate
+            )
+
+        if telemetry_type == TelemetryType.DYNAMIC_PRESSURE:
+            return KrpcTelemetryStream(
+                telemetry_type,
+                self._conn.add_stream(getattr, self._orbit_reference_fight, 'dynamic_pressure'),
+                self._default_rate
+            )
+
+        if telemetry_type == TelemetryType.STATIC_PRESSURE:
+            return KrpcTelemetryStream(
+                telemetry_type,
+                self._conn.add_stream(getattr, self._orbit_reference_fight, 'static_pressure'),
+                self._default_rate
+            )
+
+        if telemetry_type == TelemetryType.AERODYNAMIC_FORCE:
+            return KrpcTelemetryStream(
+                telemetry_type,
+                self._conn.add_stream(getattr, self._orbit_reference_fight, 'aerodynamic_force'),
+                self._default_rate
             )
 
         raise ValueError("Telemetry %s unknown" % telemetry_type)

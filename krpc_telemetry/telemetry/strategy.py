@@ -67,7 +67,7 @@ class GenericTelemetryStrategy(TelemetryStrategy, ABC):
 
     def get_telemetry_plot(self):
         plot: Figure = self._dataframe.plot()
-        for index in range(0, len(self._telemetry_types) - 1):
+        for index in range(0, len(plot.data)):
             set_spline_line(plot.data[index])
         return plot
 
@@ -79,13 +79,31 @@ class OrbitalVelocityStrategy(GenericTelemetryStrategy, ABC):
 
 class SurfaceVelocityStrategy(GenericTelemetryStrategy, ABC):
     def __init__(self, collect_every_secs: int = 1):
-        super().__init__("surface_velocity", "Surface Velocity", [TelemetryType.SURFACE_SPEED], collect_every_secs)
+        super().__init__("surface_velocity", "Surface Velocity",
+                         [TelemetryType.SURFACE_SPEED,
+                          TelemetryType.SURFACE_HORIZONTAL_SPEED,
+                          TelemetryType.SURFACE_VERTICAL_SPEED]
+                         , collect_every_secs)
 
 
 class OrbitApoEpiStrategy(GenericTelemetryStrategy, ABC):
     def __init__(self, collect_every_secs: int = 1):
         super().__init__("orbit_apo_peri", "Orbital Apoapsis and Periapsis",
                          [TelemetryType.ORBITAL_APOAPSIS, TelemetryType.ORBITAL_PERIAPSIS], collect_every_secs)
+
+
+class AtmospherePressureStrategy(GenericTelemetryStrategy, ABC):
+    def __init__(self, collect_every_secs: int = 1):
+        super().__init__("atm_pressure", "Atmosphere pressure and forces",
+                         [TelemetryType.ATMOSPHERE_DENSITY,
+                          TelemetryType.DYNAMIC_PRESSURE,
+                          TelemetryType.STATIC_PRESSURE]
+                         , collect_every_secs)
+
+
+class GForceStrategy(GenericTelemetryStrategy, ABC):
+    def __init__(self, collect_every_secs: int = 1):
+        super().__init__("gforce", "G-Force", [TelemetryType.G_FORCE], collect_every_secs)
 
 
 def set_spline_line(data: Any) -> None:

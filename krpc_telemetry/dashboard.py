@@ -14,9 +14,11 @@ def add_update_graph_callback(app: Dash, telemetry_processor: TelemetryProcessor
 
 def add_graph_html_block(graph_name: str, graph_title) -> html.Div:
     return html.Div([
-        html.H2(graph_title, className="text-lg"),
-        dcc.Graph(id='%s-graph' % graph_name),
-    ], className="basis-1/2 p-2")
+        html.Div([
+            html.H2(graph_title, className="text-lg"),
+            dcc.Graph(id='%s-graph' % graph_name)
+        ], className="p-2")
+    ], className="basis-1/2 w-1/2")
 
 
 def create_graphs_and_interval_callbacks(app: Dash, telemetry_processor: TelemetryProcessor) -> List[html.Div]:
@@ -36,20 +38,22 @@ def init_dashboard(telemetry_processor: TelemetryProcessor) -> Dash:
 
     def serve_layout():
         return html.Div([
-            html.H1('KRPC Telemetry', className="inline-block text-2xl"),
-            html.Button(id='start-stop-button', children='Pause',
-                        className="inline-block font-bold ml-4 py-2 px-4 rounded bg-blue-500 text-white"),
-            html.Button(id='shutdown-button', children='Shutdown',
-                        className="inline-block font-bold ml-4 py-2 px-4 rounded bg-blue-500 text-white"),
+            html.Div([
+                html.H1('KRPC Telemetry', className="inline-block text-2xl"),
+                html.Button(id='start-stop-button', children='Pause',
+                            className="inline-block font-bold ml-4 py-2 px-4 rounded bg-blue-500 text-white"),
+                html.Button(id='shutdown-button', children='Shutdown',
+                            className="inline-block font-bold ml-4 py-2 px-4 rounded bg-blue-500 text-white"),
+                ], className="p-4"),
             html.Div(
-                graph_layout, className="mt-4 flex flex-wrap"
+                graph_layout, className="flex flex-wrap"
             ),
             dcc.Interval(
                 id='interval-component',
                 interval=1 * 1000,  # in milliseconds
                 n_intervals=0
             )
-        ], className="p-4"
+        ]
         )
 
     app.layout = serve_layout
