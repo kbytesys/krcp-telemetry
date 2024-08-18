@@ -55,7 +55,7 @@ class GenericTelemetryStrategy(TelemetryStrategy, ABC):
         collected_data[TelemetryType.MET] = met
 
         for telemetry_type in self._telemetry_types:
-            collected_data[telemetry_type] = data[telemetry_type]
+            transform_data(telemetry_type, data[telemetry_type], collected_data)
 
         collected_data_dataframe = pd.DataFrame(collected_data, index=[0])
         collected_data_dataframe.set_index(TelemetryType.MET, inplace=True)
@@ -106,6 +106,26 @@ class GForceStrategy(GenericTelemetryStrategy, ABC):
         super().__init__("gforce", "G-Force", [TelemetryType.G_FORCE], collect_every_secs)
 
 
+class AerodynamicForceStrategy(GenericTelemetryStrategy, ABC):
+    def __init__(self, collect_every_secs: int = 1):
+        super().__init__("aero_force", "Aerodynamic Force", [TelemetryType.AERODYNAMIC_FORCE], collect_every_secs)
+
+
+class CenterOfMassStrategy(GenericTelemetryStrategy, ABC):
+    def __init__(self, collect_every_secs: int = 1):
+        super().__init__("center_mass", "Center of Mass", [TelemetryType.CENTER_OF_MASS], collect_every_secs)
+
+
 def set_spline_line(data: Any) -> None:
     scatter_0: Scatter = cast(Scatter, data)
     scatter_0.line.shape = "spline"
+
+
+def transform_data(telemetry_type: TelemetryType, data: Any, collected_data: dict) -> Any:
+    if telemetry_type == TelemetryType.AERODYNAMIC_FORCE or telemetry_type == TelemetryType.CENTER_OF_MASS:
+        (x, y, z) = data
+        collected_data["%s_x" % telemetry_type] = x
+        collected_data["%s_y" % telemetry_type] = y
+        collected_data["%s_z" % telemetry_type] = z
+    else:
+        collected_data[telemetry_type] = data

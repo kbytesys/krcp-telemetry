@@ -2,7 +2,7 @@ from typing import Any
 
 from krpc_telemetry.telemetry.processor import TelemetryProcessor
 from krpc_telemetry.telemetry.strategy import OrbitalVelocityStrategy, SurfaceVelocityStrategy, TelemetryStrategy, \
-    OrbitApoEpiStrategy, GForceStrategy, AtmospherePressureStrategy
+    OrbitApoEpiStrategy, GForceStrategy, AtmospherePressureStrategy, AerodynamicForceStrategy, CenterOfMassStrategy
 
 
 class TelemetryProcessorBuilder:
@@ -21,6 +21,10 @@ class TelemetryProcessorBuilder:
                 result.add_strategy(GForceStrategy())
             elif telemetry.get("name") == "atm_pressure":
                 result.add_strategy(AtmospherePressureStrategy())
+            elif telemetry.get("name") == "aero_force":
+                result.add_strategy(AerodynamicForceStrategy())
+            elif telemetry.get("name") == "center_mass":
+                result.add_strategy(CenterOfMassStrategy())
             else:
                 raise ValueError(f"Unknown telemetry name: {telemetry.get('name')}")
 

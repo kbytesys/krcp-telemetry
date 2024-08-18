@@ -73,10 +73,12 @@ class KrpcTelemetryStreamFactory:
         self._default_rate = default_rate
 
         self._orbit_reference_fight = None
+        self._vessel_reference_flight = None
 
     def create(self, telemetry_type: TelemetryType) -> KrpcTelemetryStream:
         if not self._orbit_reference_fight:
             self._orbit_reference_fight = self._vessel.flight(self._vessel.orbit.body.reference_frame)
+            self._vessel_reference_flight = self._vessel.flight(self._vessel.reference_frame)
 
         if telemetry_type == TelemetryType.MET:
             return KrpcTelemetryStream(
@@ -145,7 +147,7 @@ class KrpcTelemetryStreamFactory:
         if telemetry_type == TelemetryType.CENTER_OF_MASS:
             return KrpcTelemetryStream(
                 telemetry_type,
-                self._conn.add_stream(getattr, self._orbit_reference_fight, 'center_of_mass'),
+                self._conn.add_stream(getattr, self._vessel_reference_flight, 'center_of_mass'),
                 self._default_rate
             )
 

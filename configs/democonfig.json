@@ -14,6 +14,12 @@
     },
     {
       "name": "atm_pressure"
+    },
+    {
+      "name": "aero_force"
+    },
+    {
+      "name": "center_mass"
     }
   ]
 }
